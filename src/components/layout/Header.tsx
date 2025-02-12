@@ -2,11 +2,13 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
+import { useCart } from '@/hooks/useCart'
 import { Button } from '@/components/ui/Button'
 import { ShoppingBag, User, Search } from 'lucide-react'
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuth()
+  const { totalQuantity } = useCart()
 
   return (
     <header className="border-b">
@@ -62,9 +64,11 @@ export function Header() {
               className="p-2 text-gray-500 hover:text-primary relative"
             >
               <ShoppingBag className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                0
-              </span>
+              {totalQuantity > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {totalQuantity}
+                </span>
+              )}
             </Link>
 
             {/* Menu do Usuário */}
