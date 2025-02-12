@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from 'next/script'
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/layout/Header";
@@ -19,6 +20,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className="h-full">
+      <head>
+        <Script
+          src="https://sdk.mercadopago.com/js/v2"
+          strategy="lazyOnload"
+        />
+      </head>
       <body className={`${inter.className} h-full`}>
         <Providers>
           <div className="flex flex-col min-h-screen">

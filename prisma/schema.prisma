@@ -26,6 +26,7 @@ model User {
   reviews      Review[]
   accounts     Account[]
   sessions     Session[]
+  comments     Comment[]
 }
 
 model Account {
@@ -103,8 +104,8 @@ model Order {
   id            String      @id @default(cuid())
   user          User        @relation(fields: [userId], references: [id])
   userId        String
-  address       Address     @relation(fields: [addressId], references: [id])
-  addressId     String
+  address       Address?    @relation(fields: [addressId], references: [id])
+  addressId     String?
   status        OrderStatus @default(PENDING)
   total         Decimal     @db.Decimal(10, 2)
   paymentIntent String?
@@ -145,6 +146,44 @@ model Post {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  comments  Comment[]
+  category  BlogCategory? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+}
+
+model BlogCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  posts       Post[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Settings {
+  id                    String   @id @default(cuid())
+  siteName             String   @default("Essencial")
+  siteDescription      String   @default("E-commerce especializado em produtos de beleza e cosméticos")
+  contactEmail         String   @default("")
+  phoneNumber          String   @default("")
+  address              String   @default("")
+  freeShippingThreshold Decimal  @default(150) @db.Decimal(10, 2)
+  enableRegistration   Boolean  @default(true)
+  enableReviews        Boolean  @default(true)
+  maintenanceMode      Boolean  @default(false)
+  updatedAt            DateTime @updatedAt
 }
 
 enum Role {

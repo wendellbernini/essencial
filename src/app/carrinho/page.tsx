@@ -1,13 +1,24 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Minus, Plus, Trash2, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { formatCurrency } from '@/utils/format'
 import { useCart } from '@/hooks/useCart'
+import { useAuth } from '@/hooks/useAuth'
+
+declare global {
+  interface Window {
+    MercadoPago?: any
+  }
+}
 
 export default function CartPage() {
+  const router = useRouter()
+  const { isAuthenticated } = useAuth()
   const {
     items,
     totalQuantity,
@@ -15,6 +26,60 @@ export default function CartPage() {
     updateItemQuantity,
     removeItem,
   } = useCart()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleCheckout = async () => {
+    if (!isAuthenticated) {
+      router.push('/auth/login?redirect=/carrinho')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+
+      // Cria a preferência de pagamento
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+          })),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao criar checkout')
+      }
+
+      const { preferenceId } = await response.json()
+
+      // Inicializa o Mercado Pago
+      const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY)
+      
+      // Cria o botão de pagamento
+      const checkout = mp.checkout({
+        preference: {
+          id: preferenceId,
+        },
+        render: {
+          container: '#payment-button',
+          label: 'Pagar com Mercado Pago',
+        },
+      })
+    } catch (error) {
+      console.error('Erro ao processar checkout:', error)
+      alert('Erro ao processar pagamento. Tente novamente.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -134,9 +199,16 @@ export default function CartPage() {
               </div>
             </div>
 
-            <Button className="w-full">
+            <Button
+              onClick={handleCheckout}
+              isLoading={isLoading}
+              className="w-full mb-4"
+            >
               Finalizar Compra
             </Button>
+
+            {/* Container para o botão do Mercado Pago */}
+            <div id="payment-button" className="w-full"></div>
 
             <Button
               variant="outline"

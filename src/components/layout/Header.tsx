@@ -83,33 +83,43 @@ export function Header() {
                     {user?.name}
                   </span>
                 </button>
-                <div className="absolute right-0 w-48 py-2 mt-2 bg-white rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                  <Link
-                    href="/perfil"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Meu Perfil
-                  </Link>
-                  <Link
-                    href="/pedidos"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Meus Pedidos
-                  </Link>
-                  {user?.role === 'ADMIN' && (
+                <div className="absolute right-0 w-48 py-2 mt-2 bg-white rounded-md shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 [transition-delay:200ms] group-hover:[transition-delay:0ms]">
+                  <div className="py-2" onMouseLeave={(e) => {
+                    // Adiciona um pequeno delay antes de fechar o menu
+                    setTimeout(() => {
+                      const relatedTarget = e.relatedTarget as HTMLElement;
+                      if (!relatedTarget?.closest('.group')) {
+                        e.currentTarget.closest('.group')?.classList.remove('hover');
+                      }
+                    }, 100);
+                  }}>
                     <Link
-                      href="/admin"
+                      href="/perfil"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Painel Admin
+                      Meu Perfil
                     </Link>
-                  )}
-                  <button
-                    onClick={() => logout()}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                  >
-                    Sair
-                  </button>
+                    <Link
+                      href="/pedidos"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Meus Pedidos
+                    </Link>
+                    {user?.role === 'ADMIN' && (
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Painel Admin
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => logout()}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      Sair
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
