@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { formatCurrency } from '@/utils/format'
 import { useCart } from '@/hooks/useCart'
 import { useAuth } from '@/hooks/useAuth'
+import { useCoupons } from '@/hooks/useCoupons'
 
 declare global {
   interface Window {
@@ -26,7 +27,15 @@ export default function CartPage() {
     updateItemQuantity,
     removeItem,
   } = useCart()
+  const { validateCoupon } = useCoupons()
   const [isLoading, setIsLoading] = useState(false)
+  const [couponCode, setCouponCode] = useState('')
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discount: number
+    total: number
+  } | null>(null)
 
   const handleCheckout = async () => {
     if (!isAuthenticated) {
@@ -51,6 +60,7 @@ export default function CartPage() {
             quantity: item.quantity,
             image: item.image,
           })),
+          couponId: appliedCoupon?.code,
         }),
       })
 
@@ -79,6 +89,32 @@ export default function CartPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return
+
+    try {
+      setCouponError(null)
+      const result = await validateCoupon(couponCode, totalAmount)
+      
+      if (result) {
+        setAppliedCoupon({
+          code: result.coupon.code,
+          discount: result.discount,
+          total: result.total,
+        })
+        setCouponCode('')
+      }
+    } catch (error) {
+      console.error('Erro ao aplicar cupom:', error)
+      setCouponError(error instanceof Error ? error.message : 'Erro ao aplicar cupom')
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponError(null)
   }
 
   if (items.length === 0) {
@@ -188,13 +224,55 @@ export default function CartPage() {
                 <span>Frete</span>
                 <span className="text-green-600">Grátis</span>
               </div>
+
+              {/* Cupom */}
+              <div className="pt-4">
+                {appliedCoupon ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span>Cupom ({appliedCoupon.code})</span>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="text-red-600 hover:text-red-700 text-xs"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Desconto</span>
+                      <span>-{formatCurrency(appliedCoupon.discount)}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder="Código do cupom"
+                        className="flex-1 px-4 py-2 border rounded-md"
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={handleApplyCoupon}
+                      >
+                        Aplicar
+                      </Button>
+                    </div>
+                    {couponError && (
+                      <p className="text-sm text-red-600">{couponError}</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="border-t pt-4 mb-6">
               <div className="flex justify-between">
                 <span className="font-semibold">Total</span>
                 <span className="font-semibold text-lg">
-                  {formatCurrency(totalAmount)}
+                  {formatCurrency(appliedCoupon ? appliedCoupon.total : totalAmount)}
                 </span>
               </div>
             </div>

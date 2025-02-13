@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createPreference } from '@/lib/mercadopago'
 
+// POST /api/checkout - Cria um novo pedido
 export async function POST(request: Request) {
   try {
     // Verifica autenticação
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
 
     // Recebe os dados do carrinho
     const data = await request.json()
-    const { items } = data
+    const { items, couponId } = data
 
     if (!items?.length) {
       return NextResponse.json(
@@ -25,6 +26,75 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    // Calcula o total
+    const subtotal = items.reduce(
+      (acc: number, item: any) => acc + (item.price * item.quantity),
+      0
+    )
+
+    // Processa o cupom se fornecido
+    let discount = 0
+    let coupon = null
+    if (couponId) {
+      coupon = await prisma.coupon.findUnique({
+        where: { code: couponId },
+      })
+
+      if (coupon) {
+        // Verifica se o cupom está ativo
+        if (!coupon.active) {
+          return NextResponse.json(
+            { message: 'Cupom inativo' },
+            { status: 400 }
+          )
+        }
+
+        // Verifica se o cupom está dentro do período válido
+        const now = new Date()
+        if (coupon.startDate && now < coupon.startDate) {
+          return NextResponse.json(
+            { message: 'Cupom ainda não está válido' },
+            { status: 400 }
+          )
+        }
+        if (coupon.endDate && now > coupon.endDate) {
+          return NextResponse.json(
+            { message: 'Cupom expirado' },
+            { status: 400 }
+          )
+        }
+
+        // Verifica se o cupom atingiu o limite de usos
+        if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+          return NextResponse.json(
+            { message: 'Cupom atingiu o limite de usos' },
+            { status: 400 }
+          )
+        }
+
+        // Verifica se atinge o valor mínimo
+        if (coupon.minValue && subtotal < Number(coupon.minValue)) {
+          return NextResponse.json(
+            { message: `Valor mínimo para este cupom é ${coupon.minValue}` },
+            { status: 400 }
+          )
+        }
+
+        // Calcula o desconto
+        if (coupon.type === 'PERCENTAGE') {
+          discount = subtotal * (Number(coupon.value) / 100)
+        } else {
+          discount = Number(coupon.value)
+          if (discount > subtotal) {
+            discount = subtotal
+          }
+        }
+      }
+    }
+
+    // Calcula o total final
+    const total = subtotal - discount
 
     // Busca o endereço padrão do usuário
     const defaultAddress = await prisma.address.findFirst({
@@ -40,7 +110,8 @@ export async function POST(request: Request) {
         userId: session.user.id,
         addressId: defaultAddress?.id || '', // Temporário: permitir pedido sem endereço
         status: 'PENDING',
-        total: items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0),
+        total,
+        couponId: coupon?.id,
         items: {
           create: items.map((item: any) => ({
             productId: item.id,
@@ -50,6 +121,18 @@ export async function POST(request: Request) {
         },
       },
     })
+
+    // Atualiza o contador de usos do cupom
+    if (coupon) {
+      await prisma.coupon.update({
+        where: { id: coupon.id },
+        data: {
+          usedCount: {
+            increment: 1,
+          },
+        },
+      })
+    }
 
     // Cria a preferência no Mercado Pago
     const preference = await createPreference({
