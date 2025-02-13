@@ -34,7 +34,7 @@ model User {
   notificationPreferences NotificationPreferences?
   priceAlerts             PriceAlert[]
   stockAlerts             StockAlert[]
-  pushSubscriptions PushSubscription[]
+  pushSubscriptions       PushSubscription[]
 }
 
 model Account {
@@ -249,10 +249,11 @@ model Coupon {
   type        CouponType
   value       Decimal   @db.Decimal(10, 2)
   minValue    Decimal?  @db.Decimal(10, 2)
-  maxUses     Int?
-  usedCount   Int       @default(0)
+  maxValue    Decimal?  @db.Decimal(10, 2)
   startDate   DateTime?
   endDate     DateTime?
+  usageLimit  Int?
+  usageCount  Int       @default(0)
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -261,77 +262,65 @@ model Coupon {
 
 model Notification {
   id        String   @id @default(cuid())
-  userId    String
-  type      String
   title     String
-  message   String
+  message   String   @db.Text
+  type      NotificationType
   read      Boolean  @default(false)
-  data      Json?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 model NotificationPreferences {
-  id           String  @id @default(cuid())
-  userId       String  @unique
-  email        Boolean @default(true)
-  push         Boolean @default(true)
-  priceAlerts  Boolean @default(true)
-  stockAlerts  Boolean @default(true)
-  orderUpdates Boolean @default(true)
-  promotions   Boolean @default(true)
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String  @unique
+  orderUpdates      Boolean @default(true)
+  promotions        Boolean @default(true)
+  stockAlerts       Boolean @default(true)
+  priceAlerts       Boolean @default(true)
+  newsletter        Boolean @default(true)
+  emailNotifications Boolean @default(true)
+  pushNotifications Boolean @default(true)
 }
 
 model PriceAlert {
-  id          String   @id @default(cuid())
-  userId      String
-  productId   String
-  targetPrice Decimal
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  price     Decimal  @db.Decimal(10, 2)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([productId])
+  @@unique([userId, productId])
 }
 
 model StockAlert {
   id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([productId])
+  @@unique([userId, productId])
 }
 
 model PushSubscription {
   id        String   @id @default(cuid())
-  userId    String
   endpoint  String   @unique
   p256dh    String
   auth      String
-  active    Boolean  @default(true)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 enum Role {
@@ -341,13 +330,23 @@ enum Role {
 
 enum OrderStatus {
   PENDING
+  PAID
   PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED
+  REFUNDED
 }
 
 enum CouponType {
-  PERCENTAGE
   FIXED
+  PERCENTAGE
+}
+
+enum NotificationType {
+  ORDER
+  PROMOTION
+  STOCK
+  PRICE
+  SYSTEM
 } 

@@ -1,47 +1,47 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { formatCurrency } from '@/utils/format'
-import { Star } from 'lucide-react'
+import Image from "next/image";
+import Link from "next/link";
+import { formatCurrency } from "@/utils/format";
+import { Star } from "lucide-react";
 
 // Dados mockados para exemplo
 const products = [
   {
     id: 1,
-    name: 'Batom Matte Vermelho',
-    slug: 'batom-matte-vermelho',
-    price: 49.90,
-    image: '/images/products/lipstick.jpg',
+    name: "Batom Matte Vermelho",
+    slug: "batom-matte-vermelho",
+    price: 49.9,
+    image: "/images/products/batom.jpg",
     rating: 4.5,
-    brand: 'MAC',
+    brand: "MAC",
   },
   {
     id: 2,
-    name: 'Sérum Facial Vitamina C',
-    slug: 'serum-facial-vitamina-c',
-    price: 129.90,
-    image: '/images/products/serum.jpg',
+    name: "Sérum Facial Vitamina C",
+    slug: "serum-facial-vitamina-c",
+    price: 129.9,
+    image: "/images/products/serum.jpg",
     rating: 5,
-    brand: 'La Roche-Posay',
+    brand: "La Roche-Posay",
   },
   {
     id: 3,
-    name: 'Máscara de Cílios',
-    slug: 'mascara-de-cilios',
-    price: 89.90,
-    image: '/images/products/mascara.jpg',
+    name: "Máscara de Cílios",
+    slug: "mascara-de-cilios",
+    price: 89.9,
+    image: "/images/products/mascaradecilios.jpg",
     rating: 4.8,
-    brand: 'Lancôme',
+    brand: "Lancôme",
   },
   {
     id: 4,
-    name: 'Perfume Floral',
-    slug: 'perfume-floral',
-    price: 299.90,
-    image: '/images/products/perfume.jpg',
+    name: "Perfume Floral",
+    slug: "perfume-floral",
+    price: 299.9,
+    image: "/images/products/perfumes.jpg",
     rating: 4.7,
-    brand: 'Carolina Herrera',
+    brand: "Carolina Herrera",
   },
-]
+];
 
 export function FeaturedProducts() {
   return (
@@ -49,10 +49,7 @@ export function FeaturedProducts() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-3xl font-bold">Produtos em Destaque</h2>
-          <Link
-            href="/produtos"
-            className="text-primary hover:text-primary/90"
-          >
+          <Link href="/produtos" className="text-primary hover:text-primary/90">
             Ver todos
           </Link>
         </div>
@@ -92,5 +89,5 @@ export function FeaturedProducts() {
         </div>
       </div>
     </section>
-  )
-} 
+  );
+}

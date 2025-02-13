@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { formatCurrency } from '@/utils/format'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { Search, Filter } from 'lucide-react'
 
 interface OrderItem {

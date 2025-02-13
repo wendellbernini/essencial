@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -144,3 +145,48 @@ export async function GET(request: Request) {
     )
   }
 } 
+=======
+import { NextResponse } from "next/server";
+
+const mockRecommendations = [
+  {
+    id: "1",
+    name: "Batom Matte",
+    price: 29.9,
+    image: "/images/products/batom.jpg",
+    slug: "batom-matte",
+  },
+  {
+    id: "2",
+    name: "Sérum Facial",
+    price: 89.9,
+    image: "/images/products/serum.jpg",
+    slug: "serum-facial",
+  },
+  {
+    id: "3",
+    name: "Perfume Floral",
+    price: 199.9,
+    image: "/images/products/perfumes.jpg",
+    slug: "perfume-floral",
+  },
+];
+
+// GET /api/recommendations - Retorna recomendações baseadas no histórico
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const limit = Number(searchParams.get("limit")) || 6;
+
+    const recommendations = mockRecommendations.slice(0, limit);
+
+    return NextResponse.json(recommendations);
+  } catch (error) {
+    console.error("Erro ao buscar recomendações:", error);
+    return NextResponse.json(
+      { error: "Erro ao buscar recomendações" },
+      { status: 500 }
+    );
+  }
+}
+>>>>>>> Stashed changes

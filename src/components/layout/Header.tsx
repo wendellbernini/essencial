@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
-import { useCart } from '@/hooks/useCart'
-import { Button } from '@/components/ui/Button'
-import { ShoppingBag, User, Search } from 'lucide-react'
+import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { Button } from "@/components/ui/button";
+import { ShoppingBag, User, Search } from "lucide-react";
 
 export function Header() {
-  const { user, isAuthenticated, logout } = useAuth()
-  const { totalQuantity } = useCart()
+  const { user, isAuthenticated, logout } = useAuth();
+  const { totalQuantity } = useCart();
 
   return (
     <header className="border-b">
@@ -84,15 +84,20 @@ export function Header() {
                   </span>
                 </button>
                 <div className="absolute right-0 w-48 py-2 mt-2 bg-white rounded-md shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 [transition-delay:200ms] group-hover:[transition-delay:0ms]">
-                  <div className="py-2" onMouseLeave={(e) => {
-                    // Adiciona um pequeno delay antes de fechar o menu
-                    setTimeout(() => {
-                      const relatedTarget = e.relatedTarget as HTMLElement;
-                      if (!relatedTarget?.closest('.group')) {
-                        e.currentTarget.closest('.group')?.classList.remove('hover');
-                      }
-                    }, 100);
-                  }}>
+                  <div
+                    className="py-2"
+                    onMouseLeave={(e) => {
+                      // Adiciona um pequeno delay antes de fechar o menu
+                      setTimeout(() => {
+                        const relatedTarget = e.relatedTarget as HTMLElement;
+                        if (!relatedTarget?.closest(".group")) {
+                          e.currentTarget
+                            .closest(".group")
+                            ?.classList.remove("hover");
+                        }
+                      }, 100);
+                    }}
+                  >
                     <Link
                       href="/perfil"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -105,7 +110,7 @@ export function Header() {
                     >
                       Meus Pedidos
                     </Link>
-                    {user?.role === 'ADMIN' && (
+                    {user?.role === "ADMIN" && (
                       <Link
                         href="/admin"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -123,11 +128,7 @@ export function Header() {
                 </div>
               </div>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-              >
+              <Button variant="outline" size="sm" asChild>
                 <Link href="/auth/login">Entrar</Link>
               </Button>
             )}
@@ -135,5 +136,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
-} 
+  );
+}

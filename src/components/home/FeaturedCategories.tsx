@@ -1,36 +1,36 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from "next/image";
+import Link from "next/link";
 
 const categories = [
   {
     id: 1,
-    name: 'Maquiagem',
-    image: '/images/categories/makeup.jpg',
-    link: '/categorias/maquiagem',
-    description: 'Produtos para realçar sua beleza',
+    name: "Maquiagem",
+    image: "/images/categories/maquiagem.jpg",
+    link: "/categorias/maquiagem",
+    description: "Produtos para realçar sua beleza",
   },
   {
     id: 2,
-    name: 'Skincare',
-    image: '/images/categories/skincare.jpg',
-    link: '/categorias/skincare',
-    description: 'Cuidados essenciais para sua pele',
+    name: "Skincare",
+    image: "/images/categories/skincare.jpg",
+    link: "/categorias/skincare",
+    description: "Cuidados essenciais para sua pele",
   },
   {
     id: 3,
-    name: 'Cabelos',
-    image: '/images/categories/hair.jpg',
-    link: '/categorias/cabelos',
-    description: 'Tratamentos e finalizadores',
+    name: "Cabelos",
+    image: "/images/categories/cabelo.jpg",
+    link: "/categorias/cabelos",
+    description: "Tratamentos e finalizadores",
   },
   {
     id: 4,
-    name: 'Perfumes',
-    image: '/images/categories/perfume.jpg',
-    link: '/categorias/perfumes',
-    description: 'Fragrâncias nacionais e importadas',
+    name: "Perfumes",
+    image: "/images/categories/perfume.jpg",
+    link: "/categorias/perfumes",
+    description: "Fragrâncias nacionais e importadas",
   },
-]
+];
 
 export function FeaturedCategories() {
   return (
@@ -55,8 +55,12 @@ export function FeaturedCategories() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
-                  <p className="text-sm text-white/90">{category.description}</p>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-white/90">
+                    {category.description}
+                  </p>
                 </div>
               </div>
             </Link>
@@ -64,5 +68,5 @@ export function FeaturedCategories() {
         </div>
       </div>
     </section>
-  )
-} 
+  );
+}

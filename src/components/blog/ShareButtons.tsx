@@ -1,7 +1,7 @@
 'use client'
 
 import { Facebook, Twitter, Linkedin, Link as LinkIcon } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 interface ShareButtonsProps {
   url: string
